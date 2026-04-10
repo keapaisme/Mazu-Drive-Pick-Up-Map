@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白沙屯媽祖 2026 去程候選駐駕地圖</title>
+    <!-- 引入 Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <style>
+        body { margin: 0; padding: 0; font-family: "Microsoft JhengHei", Arial, sans-serif; }
+        #header { background: #d92727; color: white; padding: 10px 15px; text-align: center; }
+        #header h1 { margin: 0; font-size: 1.2rem; }
+        #header p { margin: 5px 0 0 0; font-size: 0.9rem; color: #ffcccc; font-weight: bold; }
+        #map { height: calc(100vh - 60px); width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>白沙屯媽祖 2026 去程候選駐駕地圖</h1>
+        <p>⚠️ 注意：此為根據歷年節奏推估版，非官方定案路線或正式駐駕公告！</p>
+    </div>
+    <div id="map"></div>
+
+    <!-- 引入 Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // 初始化地圖，中心點設為中部，縮放比例可看見全貌
+        const map = L.map('map').setView([23.95, 120.45], 10);
+
+        // 加入 OpenStreetMap 圖層
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 自定義標記顏色 (使用 CDN 圖片)
+        const customIcon = (color) => new L.Icon({
+            iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+        });
+
+        // 整理好的資料點
+        const locations = [
+            // 第一晚 (藍色)
+            { name: "大甲區", lat: 24.3486, lng: 120.6224, group: "第一晚候選", desc: "台中海線候選區塊 (行政中心)", color: "blue" },
+            { name: "清水區", lat: 24.2678, lng: 120.5746, group: "第一晚候選", desc: "台中海線候選區塊 (行政中心)", color: "blue" },
+            { name: "沙鹿區", lat: 24.2332, lng: 120.5624, group: "第一晚候選", desc: "台中海線候選區塊 (行政中心)", color: "blue" },
+            { name: "福宴國際創意美食餐廳", lat: 24.2709, lng: 120.5644, group: "第一晚參考點", desc: "2020年實際駐駕點", color: "blue" },
+            // 第二晚 (橘色)
+            { name: "花壇鄉", lat: 24.0255, lng: 120.5393, group: "第二晚候選", desc: "彰化南段候選區塊 (行政中心)", color: "orange" },
+            { name: "員林市", lat: 23.9592, lng: 120.5739, group: "第二晚候選", desc: "彰化南段候選區塊 (行政中心)", color: "orange" },
+            { name: "宏泰汽車商行", lat: 23.9782, lng: 120.5518, group: "第二晚參考點", desc: "2020年實際駐駕點", color: "orange" },
+            // 第三晚 (紅色)
+            { name: "虎尾鎮", lat: 23.7082, lng: 120.4433, group: "第三晚候選", desc: "雲林前哨站區塊 (行政中心)", color: "red" },
+            { name: "土庫鎮", lat: 23.6766, lng: 120.3925, group: "第三晚候選", desc: "雲林前哨站區塊 (行政中心)", color: "red" },
+            { name: "褒忠鄉", lat: 23.7153, lng: 120.3138, group: "第三晚候選", desc: "雲林前哨站區塊 (行政中心)", color: "red" },
+            { name: "國立虎尾農工", lat: 23.7001, lng: 120.4357, group: "第三晚參考點", desc: "2020年實際駐駕點", color: "red" },
+            { name: "褒忠分駐所", lat: 23.7145, lng: 120.3121, group: "第三晚參考點", desc: "2019年實際駐駕點", color: "red" },
+            // 目標點 (綠色/金色)
+            { name: "北港朝天宮", lat: 23.5681, lng: 120.3019, group: "目標點", desc: "進香目的地", color: "gold" }
+        ];
+
+        // 放置標記
+        locations.forEach(loc => {
+            L.marker([loc.lat, loc.lng], { icon: customIcon(loc.color) })
+             .addTo(map)
+             .bindPopup(`<b>${loc.name}</b><br><span style="color:gray">${loc.group}</span><br>${loc.desc}`);
+        });
+
+        // 繪製「建議觀察帶」虛線 (大甲 -> 清水 -> 員林 -> 虎尾 -> 褒忠 -> 北港)
+        const routeCoords = [
+            [24.3486, 120.6224], // 大甲
+            [24.2678, 120.5746], // 清水
+            [23.9592, 120.5739], // 員林
+            [23.7082, 120.4433], // 虎尾
+            [23.7153, 120.3138], // 褒忠
+            [23.5681, 120.3019]  // 北港
+        ];
+
+        L.polyline(routeCoords, {
+            color: '#888',
+            weight: 4,
+            dashArray: '10, 10', // 虛線設定
+            opacity: 0.7
+        }).addTo(map)
+        .bindPopup("<b>建議觀察軌跡帶</b><br>非絕對路線，僅表示大方向收斂趨勢");
+
+    </script>
+</body>
+</html>
