@@ -23,31 +23,51 @@
         @media (max-width: 768px) {
             #sidebar { position: absolute; height: 100%; transform: translateX(-100%); }
             #sidebar.active { transform: translateX(0); }
-            #toggle-btn { position: absolute; top: 15px; left: 15px; z-index: 1002; background: #d92727; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; }
+            #toggle-btn { position: absolute; top: 15px; left: 15px; z-index: 1002; background: #d92727; color: white; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
         }
 
         .sidebar-section { padding: 12px; border-bottom: 1px solid #eee; }
         .sidebar-section h2 { font-size: 1rem; margin: 0 0 5px 0; }
-        .info-box { background: #eef5ff; padding: 8px; font-size: 0.8rem; color: #084298; border-radius: 4px; }
+        .info-box { background: #eef5ff; padding: 8px; font-size: 0.8rem; color: #084298; border-radius: 4px; line-height: 1.4; }
+        .info-box .alert-text { color: #d92727; font-weight: bold; display: block; margin-top: 4px; }
         
         #list-container { flex: 1; overflow-y: auto; list-style: none; padding: 0; margin: 0; background: #fafafa; }
         .list-item { padding: 10px 15px; border-bottom: 1px solid #eaeaea; cursor: pointer; }
         .list-item:hover { background: #eef5ff; }
         .list-item-title { font-weight: bold; font-size: 0.95rem; }
-        .list-item-desc { font-size: 0.8rem; color: #666; }
+        .list-item-desc { font-size: 0.8rem; color: #666; margin-top: 3px; }
+
+        /* 篩選器 */
+        .control-group { margin-bottom: 5px; }
+        .control-group label { font-size: 0.85rem; font-weight: bold; color: #444; }
+        select { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #ccc; font-size: 0.9rem; margin-top: 4px; }
+        .checkbox-group { display: flex; align-items: center; font-size: 0.85rem; color: #333; margin-top: 8px; cursor: pointer; }
 
         #map { flex: 1; height: 100%; z-index: 1; }
 
         /* 徽章與按鈕 */
-        .badge { display: inline-block; padding: 3px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-right: 5px; color: white; }
+        .badge { display: inline-block; padding: 3px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; margin-right: 5px; color: white; margin-bottom: 4px; }
         .badge.parking-high { background: #28a745; }
         .badge.parking-med { background: #ffc107; color: #333; }
         .badge.parking-low { background: #6c757d; }
         .badge.night-yes { background: #17a2b8; }
-        .gm-link { display: inline-block; margin-top: 10px; background: #4285F4; color: white; padding: 5px 10px; text-decoration: none; font-size: 0.8rem; border-radius: 4px;}
+        
+        /* 低調文字連結 go */
+        .gm-link-simple { display: block; text-align: right; margin-top: 6px; color: #007bff; text-decoration: none; font-size: 0.9rem; font-weight: bold; cursor: pointer; }
+        .gm-link-simple:hover { text-decoration: underline; color: #0056b3; }
 
         /* 數字Icon樣式 */
         .num-icon { display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+	
+	/* ⬇️ 請新增這行：星號Icon樣式 ⬇️ */
+        .star-icon { display: flex; align-items: center; justify-content: center; border-radius: 50%; color: white; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.4); border: 2px solid white; }
+
+        /* Popup微調 */
+        .custom-popup .popup-year { font-size: 0.75rem; background: #666; color: white; padding: 2px 5px; border-radius: 3px; display: inline-block; margin-bottom: 5px; }
+        .custom-popup h3 { margin: 0 0 8px 0; font-size: 1.1rem; }
+        .highway-info { background: #fdf2e9; padding: 6px; border-left: 3px solid #e67e22; font-size: 0.8rem; margin: 8px 0; border-radius: 0 3px 3px 0; }
+        .highway-info span { color: #d35400; font-size: 0.7rem; }
+        .note { font-size: 0.85rem; color: #444; background: #f9f9f9; padding: 6px; border-left: 3px solid #007bff; }
 
     </style>
 </head>
@@ -56,26 +76,51 @@
         <h1>白沙屯媽祖 2026 去程候選駐駕地圖 V5（整合 2021 停車點版）</h1>
         <p>⚠️ 本圖為規劃示意，非官方公告，實際請依即時路線與交管調整。</p>
     </div>
-    <button id="toggle-btn" onclick="toggleSidebar()">☰ 選單</button>
+    <button id="toggle-btn" onclick="toggleSidebar()">☰ 選單面板</button>
 
     <div id="main-container">
         <div id="sidebar">
             <div class="sidebar-section">
-                <h2>實戰觀察動線規劃</h2>
-                <div class="info-box">• 點擊 2026 候選點位，將自動連線最近交流道。<br>• 第三晚核心帶為開車接駕優先關注區。</div>
+                <h2>🚙 實戰觀察規劃</h2>
+                <div class="info-box">
+                    • 點擊 2026 候選點位，將自動連線最近交流道。<br>
+                    • 第三晚核心帶為開車接駕優先關注區。<br>
+                    <span class="alert-text">⚠️ 交流道連線與距離僅為推估示意，出發前請務必再用 Google Maps 確認路況。</span>
+                </div>
             </div>
             <div class="sidebar-section">
                 <div class="control-group">
-                    <label>🔍 篩選：</label>
+                    <label>🔍 高階資料篩選器：</label>
                     <select id="filter-select" onchange="applyFilters()">
                         <optgroup label="【基本類別】">
-                            <option value="all">顯示全部</option>
+                            <option value="all">顯示全部圖層</option>
                             <option value="2026_only">🔵 只看 2026 候選推估點</option>
                             <option value="ref_only">⭐ 只看 歷年實際駐駕參考點</option>
                             <option value="2021_only">🅿️ 只看 2021 整合停車點</option>
                         </optgroup>
+                        <optgroup label="【進階分層 - 2026 候選區】">
+                            <option value="day1_2026">🔹 第一晚候選區</option>
+                            <option value="day2_2026">🔸 第二晚候選區</option>
+                            <option value="day3_2026">🔺 第三晚候選區</option>
+                            <option value="target">🎯 目標點 (北港朝天宮)</option>
+                        </optgroup>
+                        <optgroup label="【進階分層 - 2021 停車點】">
+                            <option value="day1_2021">1️⃣ 第一晚停車點 (苑裡~沙鹿)</option>
+                            <option value="day2_2021">2️⃣ 第二晚停車點 (彰化~員林)</option>
+                            <option value="day3_pre_2021">3️⃣ 第三晚前導停車點 (北斗~西螺)</option>
+                            <option value="day3_core_2021">4️⃣ 第三晚核心停車點 (虎尾~元長)</option>
+                        </optgroup>
+                        <optgroup label="【功能屬性條件】">
+                            <option value="func_parking_high">✅ 停車便利度：高</option>
+                            <option value="func_night_yes">🌙 適合夜間等候 (夜宿)</option>
+                            <option value="func_watch">👀 屬性：純觀察點</option>
+                            <option value="func_candidate">🏠 屬性：駐駕候選/核心</option>
+                        </optgroup>
                     </select>
                 </div>
+                <label class="checkbox-group">
+                    <input type="checkbox" id="toggle-route" checked onchange="toggleRoute()"> 顯示 2026 建議觀察軌跡帶 (虛線)
+                </label>
             </div>
             <ul id="list-container"></ul>
         </div>
@@ -84,74 +129,96 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // 初始化地圖
         const map = L.map('map').setView([23.95, 120.45], 10);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(map);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap contributors' }).addTo(map);
 
         // 圖層管理
         const markersLayer = L.featureGroup().addTo(map);
         const routeLineLayer = L.featureGroup().addTo(map);
-        const connLineLayer = L.featureGroup().addTo(map); // 交流道連線層
+        const connLineLayer = L.featureGroup().addTo(map);
         const markerInstances = {};
 
+        // 手機版切換側欄
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
 
-        // 交流道資料庫
-        const interchanges = {
-            g1_dajia: { name: "國1 后里", lat: 24.3160, lng: 120.7060 },
-            g3_dajia: { name: "國3 大甲", lat: 24.3312, lng: 120.6405 },
-            g1_changhua: { name: "國1 彰化", lat: 24.0815, lng: 120.5180 },
-            g3_changhua: { name: "國3 和美", lat: 24.1160, lng: 120.5050 },
-            g1_huwei: { name: "國1 虎尾", lat: 23.7295, lng: 120.4611 },
-            g3_huwei: { name: "國3 古坑", lat: 23.6300, lng: 120.5600 }
-        };
+        const customIcon = (color) => new L.Icon({
+            iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+            iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41]
+        });
 
-        // 候選點位資料庫 (新增最近交流道欄位)
+        // 完整地點資料庫
         const locations = [
-            { id: "p1", name: "大甲區", lat: 24.3486, lng: 120.6224, group: "2026候選區", tactical_group: "第一晚候選", day: "day1", color: "blue", isRef:false, is2021:false, parking: "高", type: "駐駕候選", note: "腹地較廣",
-              nearest_g1_name: "國1 后里", nearest_g1_lat: 24.3160, nearest_g1_lng: 120.7060, nearest_g1_distance: "約8km",
-              nearest_g3_name: "國3 大甲", nearest_g3_lat: 24.3312, nearest_g3_lng: 120.6405, nearest_g3_distance: "約3km" },
-            { id: "p2", name: "清水區", lat: 24.2678, lng: 120.5746, group: "2026候選區", tactical_group: "第一晚候選", day: "day1", color: "blue", isRef:false, is2021:false, parking: "中", type: "純觀察區塊", note: "注意擁擠",
-              nearest_g1_name: "國1 后里", nearest_g1_lat: 24.3160, nearest_g1_lng: 120.7060, nearest_g1_distance: "約15km",
-              nearest_g3_name: "國3 大甲", nearest_g3_lat: 24.3312, nearest_g3_lng: 120.6405, nearest_g3_distance: "約12km" },
-            { id: "p3", name: "沙鹿區", lat: 24.2332, lng: 120.5624, group: "2026候選區", tactical_group: "第一晚候選", day: "day1", color: "blue", isRef:false, is2021:false, parking: "低", type: "純觀察區塊", note: "避開市區",
-              nearest_g1_name: "國1 彰化", nearest_g1_lat: 24.0815, nearest_g1_lng: 120.5180, nearest_g1_distance: "約18km",
-              nearest_g3_name: "國3 大甲", nearest_g3_lat: 24.3312, nearest_g3_lng: 120.6405, nearest_g3_distance: "約15km" },
-            { id: "p5", name: "花壇鄉", lat: 24.0255, lng: 120.5393, group: "2026候選區", tactical_group: "第二晚候選", day: "day2", color: "orange", isRef:false, is2021:false, parking: "中", type: "純觀察區塊", note: "注意臨停",
-              nearest_g1_name: "國1 彰化", nearest_g1_lat: 24.0815, nearest_g1_lng: 120.5180, nearest_g1_distance: "約9km",
-              nearest_g3_name: "國3 和美", nearest_g3_lat: 24.1160, nearest_g3_lng: 120.5050, nearest_g3_distance: "約11km" },
-            { id: "p6", name: "員林市", lat: 23.9592, lng: 120.5739, group: "2026候選區", tactical_group: "第二晚候選", day: "day2", color: "orange", isRef:false, is2021:false, parking: "中", type: "駐駕候選", note: "機能極佳",
-              nearest_g1_name: "國1 彰化", nearest_g1_lat: 24.0815, nearest_g1_lng: 120.5180, nearest_g1_distance: "約12km",
-              nearest_g3_name: "國3 和美", nearest_g3_lat: 24.1160, nearest_g3_lng: 120.5050, nearest_g3_distance: "約15km" },
-            { id: "p8", name: "虎尾鎮", lat: 23.7082, lng: 120.4433, group: "2026候選區", tactical_group: "第三晚候選", day: "day3", color: "red", isRef:false, is2021:false, parking: "高", type: "駐駕候選", note: "撤離動線多",
-              nearest_g1_name: "國1 虎尾", nearest_g1_lat: 23.7295, nearest_g1_lng: 120.4611, nearest_g1_distance: "約3km",
-              nearest_g3_name: "國3 古坑", nearest_g3_lat: 23.6300, nearest_g3_lng: 120.5600, nearest_g3_distance: "約15km" },
-            { id: "p9", name: "土庫鎮", lat: 23.6766, lng: 120.3925, group: "2026候選區", tactical_group: "第三晚候選", day: "day3", color: "red", isRef:false, is2021:false, parking: "中", type: "純觀察區塊", note: "圓環易打結",
-              nearest_g1_name: "國1 虎尾", nearest_g1_lat: 23.7295, nearest_g1_lng: 120.4611, nearest_g1_distance: "約7km",
-              nearest_g3_name: "國3 古坑", nearest_g3_lat: 23.6300, nearest_g3_lng: 120.5600, nearest_g3_distance: "約12km" },
-            { id: "p10", name: "褒忠鄉", lat: 23.7153, lng: 120.3138, group: "2026候選區", tactical_group: "第三晚候選", day: "day3", color: "red", isRef:false, is2021:false, parking: "中", type: "駐駕候選", note: "進北港前哨",
-              nearest_g1_name: "國1 虎尾", nearest_g1_lat: 23.7295, nearest_g1_lng: 120.4611, nearest_g1_distance: "約10km",
-              nearest_g3_name: "國3 古坑", nearest_g3_lat: 23.6300, nearest_g3_lng: 120.5600, nearest_g3_distance: "約18km" },
+            // ====== 2026 候選推估區 ======
+            { id: "p1", name: "大甲區 (行政中心)", lat: 24.3486, lng: 120.6224, group: "2026候選區", tactical_group: "第一晚候選", day: "day1", color: "blue", isRef:false, is2021:false, parking: "高", night_wait:"是", type: "純觀察區塊", note: "腹地較廣，適合外圍停車後步行切入路線。",
+              nearest_g1_name: "國1 后里交流道", nearest_g1_lat: 24.315194, nearest_g1_lng: 120.697749, nearest_g1_distance: "約10km",
+              nearest_g3_name: "國3 大甲交流道", nearest_g3_lat: 24.339042, nearest_g3_lng: 120.641050, nearest_g3_distance: "約3km" },
+            { id: "p2", name: "清水區 （區公所)", lat: 24.268103, lng: 120.559837, group: "2026候選區", tactical_group: "第一晚候選", day: "day1", color: "blue", isRef:false, is2021:false, parking: "高", night_wait:"是", type: "純觀察區塊", note: "Ubike,吃食佳，週圍停車多。",
+              nearest_g1_name: "國1-國4 系統轉接", nearest_g1_lat: 24.270259, nearest_g1_lng: 120.687232, nearest_g1_distance: "較遠(21.5)",
+              nearest_g3_name: "國3 沙鹿交流道", nearest_g3_lat: 24.250153, nearest_g3_lng: 120.587181, nearest_g3_distance: "約5km" },
+            { id: "p3", name: "沙鹿區 (區公所)", lat: 24.234086, lng: 120.566295, group: "2026候選區", tactical_group: "第一晚候選", day: "day1", color: "blue", isRef:false, is2021:false, parking: "高", night_wait:"是", type: "駐駕侯選", note: "Ubike,方便停車多。",
+              nearest_g1_name: "61 梧棲交流道", nearest_g1_lat: 24.253828, nearest_g1_lng: 120.537649, nearest_g1_distance: "約5km",
+              nearest_g3_name: "國3 沙鹿交流道", nearest_g3_lat: 24.250153, nearest_g3_lng: 120.587181, nearest_g3_distance: "約3.5km" },
+            
+            { id: "p5", name: "花壇鄉 (行政中心)", lat: 24.029659, lng: 120.538121, group: "2026候選區", tactical_group: "第二晚候選", day: "day2", color: "orange", isRef:false, is2021:false, parking: "中", night_wait:"是", type: "純觀察區塊", note: "台1線沿路多腹地，需注意臨停安全。Ubike。",
+              nearest_g1_name: "國1 彰化", nearest_g1_lat: 24.06798, nearest_g1_lng: 120.52223, nearest_g1_distance: "約7km",
+              nearest_g3_name: "國3 彰化系統", nearest_g3_lat: 24.108204, nearest_g3_lng: 120.550773, nearest_g3_distance: "約13km" },
+            { id: "p6", name: "員林市 (行政中心)", lat: 23.9592, lng: 120.5739, group: "2026候選區", tactical_group: "第二晚候選", day: "day2", color: "orange", isRef:false, is2021:false, parking: "中", night_wait:"是", type: "駐駕候選", note: "生活機能極佳，夜間等候首選，市區內需提早卡位。",
+              nearest_g1_name: "國1 員林交流道", nearest_g1_lat: 23.9785, nearest_g1_lng: 120.5320, nearest_g1_distance: "約6km",
+              nearest_g3_name: "國3 系統轉接", nearest_g3_lat: 23.9785, nearest_g3_lng: 120.6500, nearest_g3_distance: "較遠(示意)" },
 
-            // 歷年參考點
-            { id: "p4", name: "福宴", lat: 24.2709, lng: 120.5644, group: "歷年參考點", tactical_group: "歷年第一晚參考", day: "day1", color: "blue", isRef: true, is2021: false, parking: "高", type: "歷年參考點", note: "2020駐點" },
-            { id: "p7", name: "宏泰", lat: 23.9782, lng: 120.5518, group: "歷年參考點", tactical_group: "歷年第二晚參考", day: "day2", color: "orange", isRef: true, is2021: false, parking: "低", type: "歷年參考點", note: "2020駐點" },
-            { id: "p11", name: "虎尾農工", lat: 23.7001, lng: 120.4357, group: "歷年參考點", tactical_group: "歷年第三晚參考", day: "day3", color: "red", isRef: true, is2021: false, parking: "高", type: "歷年參考點", note: "2020駐點" },
-            { id: "p12", name: "褒忠分駐所", lat: 23.7145, lng: 120.3121, group: "歷年參考點", tactical_group: "歷年第三晚參考", day: "day3", color: "red", isRef: true, is2021: false, parking: "低", type: "歷年參考點", note: "2019駐點" },
-            { id: "p13", name: "北港朝天宮", lat: 23.5681, lng: 120.3019, group: "目標點", tactical_group: "進香目的地", day: "target", color: "green", isRef: false, is2021: false, parking: "低", type: "終點", note: "請停外圍" },
+            { id: "p8", name: "虎尾鎮 (行政中心)", lat: 23.7082, lng: 120.4433, group: "2026候選區", tactical_group: "第三晚候選", day: "day3", color: "red", isRef:false, is2021:false, parking: "高", night_wait:"是", type: "駐駕候選", note: "雲林重要樞紐，撤離動線多，極適合開車族部署。",
+              nearest_g1_name: "國1 虎尾交流道", nearest_g1_lat: 23.7295, nearest_g1_lng: 120.4611, nearest_g1_distance: "約3km",
+              nearest_g3_name: "國3 古坑系統", nearest_g3_lat: 23.6300, nearest_g3_lng: 120.5600, nearest_g3_distance: "約16km" },
+            { id: "p9", name: "土庫鎮 (行政中心)", lat: 23.6766, lng: 120.3925, group: "2026候選區", tactical_group: "第三晚候選", day: "day3", color: "red", isRef:false, is2021:false, parking: "中", night_wait:"是", type: "純觀察區塊", note: "圓環周邊易打結，建議車停交流道附近空地。",
+              nearest_g1_name: "國1 斗南交流道", nearest_g1_lat: 23.6800, nearest_g1_lng: 120.4650, nearest_g1_distance: "約8km",
+              nearest_g3_name: "國3 古坑系統", nearest_g3_lat: 23.6300, nearest_g3_lng: 120.5600, nearest_g3_distance: "約19km" },
+            { id: "p10", name: "褒忠鄉 (行政中心)", lat: 23.7153, lng: 120.3138, group: "2026候選區", tactical_group: "第三晚候選", day: "day3", color: "red", isRef:false, is2021:false, parking: "中", night_wait:"否", type: "駐駕候選", note: "進北港前最後防線，鄉道窄，停車需非常謹慎。",
+              nearest_g1_name: "國1 虎尾交流道", nearest_g1_lat: 23.7295, nearest_g1_lng: 120.4611, nearest_g1_distance: "約15km",
+              nearest_g3_name: "國3 古坑系統", nearest_g3_lat: 23.6300, nearest_g3_lng: 120.5600, nearest_g3_distance: "約28km" },
 
-            // 2021 停車點 (數字 marker)
-            { id: "p21_1", name: "苑裡車站", lat: 24.44343, lng: 120.65148, group: "2021停車點", tactical_group: "第一晚停車點", day: "day1_2021", color: "cadetblue", isRef:false, is2021:true, parking: "高", type: "停車點", note: "集結點" },
-            { id: "p21_2", name: "日南車站", lat: 24.378065, lng: 120.654118, group: "2021停車點", tactical_group: "第一晚停車點", day: "day1_2021", color: "cadetblue", isRef:false, is2021:true, parking: "中", type: "停車點", note: "腹地有限" },
-            { id: "p21_6", name: "中華郵政ATM", lat: 24.1517009, lng: 120.545344, group: "2021停車點", tactical_group: "第二晚停車點", day: "day2_2021", color: "gold", isRef:false, is2021:true, parking: "低", type: "觀察點", note: "臨停不易" },
-            { id: "p21_11", name: "員林全家", lat: 23.9580584, lng: 120.5754372, group: "2021停車點", tactical_group: "第三晚前導停車點", day: "day3_pre_2021", color: "violet", isRef:false, is2021:true, parking: "中", type: "觀察點", note: "補給點" },
-            { id: "p21_17", name: "虎尾木棉花道", lat: 23.7289626, lng: 120.4391716, group: "2021停車點", tactical_group: "第三晚核心停車點", day: "day3_core_2021", color: "black", isRef:false, is2021:true, parking: "中", type: "觀察點", note: "路段短停" }
+            // ====== 歷年參考點 ======
+            { id: "p4", name: "福宴國際創意美食", lat: 24.259990, lng: 120.571490, group: "歷年參考點", tactical_group: "歷年第一晚參考", day: "day1", color: "blue", isRef: true, is2021: false, parking: "高", night_wait:"是", type: "歷年參考點", note: "2020實際駐駕點，戰略價值高。" },
+            { id: "p7", name: "宏泰汽車商行", lat: 23.956968, lng: 120.566669, group: "歷年參考點", tactical_group: "歷年第二晚參考", day: "day2", color: "orange", isRef: true, is2021: false, parking: "低", night_wait:"否", type: "歷年參考點", note: "2020駐駕點。示意座標，不宜停靠門口。" },
+            { id: "p11", name: "國立虎尾農工", lat: 23.7001, lng: 120.4357, group: "歷年參考點", tactical_group: "歷年第三晚參考", day: "day3", color: "red", isRef: true, is2021: false, parking: "高", night_wait:"是", type: "歷年參考點", note: "2020駐駕點。極佳夜宿觀察點。" },
+            { id: "p12", name: "褒忠分駐所", lat: 23.7145, lng: 120.3121, group: "歷年參考點", tactical_group: "歷年第三晚參考", day: "day3", color: "red", isRef: true, is2021: false, parking: "低", night_wait:"否", type: "歷年參考點", note: "2019駐駕點。交管嚴格建議遠離。" },
+            { id: "p13", name: "北港朝天宮", lat: 23.5681, lng: 120.3019, group: "目標點", tactical_group: "進香目的地", day: "target", color: "green", isRef: false, is2021: false, parking: "低", night_wait:"是", type: "終點", note: "目的地。開車族請停外圍付費停車場。" },
+
+            // ====== 2021 停車點 ======
+            { id: "p21_1", name: "苑裡車站", lat: 24.44343, lng: 120.65148, group: "2021停車點", tactical_group: "第一晚停車點", day: "day1_2021", color: "cadetblue", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "停車點", note: "進入台中前的集結點。" },
+            { id: "p21_2", name: "日南車站", lat: 24.378065, lng: 120.654118, group: "2021停車點", tactical_group: "第一晚停車點", day: "day1_2021", color: "cadetblue", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "停車點", note: "腹地有限，建議短停。" },
+            { id: "p21_3", name: "大甲車站", lat: 24.344429, lng: 120.627017, group: "2021停車點", tactical_group: "第一晚停車點", day: "day1_2021", color: "cadetblue", isRef:false, is2021:true, parking: "低", night_wait:"否", type: "觀察點", note: "市區易塞車，勿深入。" },
+            { id: "p21_4", name: "清水服務區", lat: 24.281565, lng: 120.600374, group: "2021停車點", tactical_group: "第一晚停車點", day: "day1_2021", color: "cadetblue", isRef:false, is2021:true, parking: "高", night_wait:"是", type: "停車點", note: "道路較寬，適合中繼，下到市區台一線附近711。" },
+            { id: "p21_5", name: "家樂福 沙鹿店", lat: 24.2426132, lng: 120.5653086, group: "2021停車點", tactical_group: "第一晚停車點", day: "day1_2021", color: "cadetblue", isRef:false, is2021:true, parking: "高", night_wait:"是", type: "核心接駕點", note: "具備停車與補給機能。" },
+            { id: "p21_6", name: "中華郵政(彰化)", lat: 24.1517009, lng: 120.545344, group: "2021停車點", tactical_group: "第二晚停車點", day: "day2_2021", color: "gold", isRef:false, is2021:true, parking: "低", night_wait:"否", type: "觀察點", note: "臨停不易，僅供步行動線參考。" },
+            { id: "p21_7", name: "成功車站", lat: 24.11423, lng: 120.59016, group: "2021停車點", tactical_group: "第二晚停車點", day: "day2_2021", color: "gold", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "停車點", note: "跨越烏溪前重要節點。" },
+            { id: "p21_8", name: "追分車站", lat: 24.12058, lng: 120.57013, group: "2021停車點", tactical_group: "第二晚停車點", day: "day2_2021", color: "gold", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "停車點", note: "台1線旁腹地可觀察過橋。" },
+            { id: "p21_9", name: "中油彰化站", lat: 24.0845397, lng: 120.5536598, group: "2021停車點", tactical_group: "第二晚停車點", day: "day2_2021", color: "gold", isRef:false, is2021:true, parking: "低", night_wait:"否", type: "觀察點", note: "車流快請注意安全。" },
+            { id: "p21_10", name: "BMW昌一展示", lat: 24.0394229, lng: 120.5356216, group: "2021停車點", tactical_group: "第二晚停車點", day: "day2_2021", color: "gold", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "觀察點", note: "外側稍有空間可暫時觀察。" },
+            { id: "p21_11", name: "全家(員林)", lat: 23.9580584, lng: 120.5754372, group: "2021停車點", tactical_group: "第三晚前導停車點", day: "day3_pre_2021", color: "violet", isRef:false, is2021:true, parking: "中", night_wait:"是", type: "觀察點", note: "員林南下要道補給點。" },
+            { id: "p21_12", name: "北斗大菜市場", lat: 23.881188, lng: 120.5222917, group: "2021停車點", tactical_group: "第三晚前導停車點", day: "day3_pre_2021", color: "violet", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "停車點", note: "南彰化集結點，市場周邊有空間。" },
+            { id: "p21_13", name: "萊爾富溪州", lat: 23.8325486, lng: 120.4689421, group: "2021停車點", tactical_group: "第三晚前導停車點", day: "day3_pre_2021", color: "violet", isRef:false, is2021:true, parking: "低", night_wait:"否", type: "觀察點", note: "跨越濁水溪最後節點。" },
+            { id: "p21_14", name: "西螺森活武樹公園", lat: 23.8057749, lng: 120.4572697, group: "2021停車點", tactical_group: "第三晚前導停車點", day: "day3_pre_2021", color: "violet", isRef:false, is2021:true, parking: "高", night_wait:"是", type: "停車點", note: "下大橋後避車休息空間。" },
+            { id: "p21_15", name: "西螺延平老街免費停車場", lat: 23.8038846, lng: 120.461831, group: "2021停車點", tactical_group: "第三晚前導停車點", day: "day3_pre_2021", color: "violet", isRef:false, is2021:true, parking: "高", night_wait:"是", type: "核心接駕點", note: "西螺區最穩定長停點，強烈建議利用。" },
+            { id: "p21_16", name: "西螺福興宮", lat: 23.8016276, lng: 120.4605212, group: "2021停車點", tactical_group: "第三晚前導停車點", day: "day3_pre_2021", color: "violet", isRef:false, is2021:true, parking: "低", night_wait:"否", type: "歷年參考點", note: "廟前交管嚴格，請停外圍。" },
+            { id: "p21_17", name: "虎尾木棉花道", lat: 23.7289626, lng: 120.4391716, group: "2021停車點", tactical_group: "第三晚核心停車點", day: "day3_core_2021", color: "black", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "觀察點", note: "進虎尾市區前美麗路段可短停。" },
+            { id: "p21_18", name: "安溪社區活動中心", lat: 23.719934, lng: 120.441116, group: "2021停車點", tactical_group: "第三晚核心停車點", day: "day3_core_2021", color: "black", isRef:false, is2021:true, parking: "中", night_wait:"否", type: "停車點", note: "避開擁擠便於撤離的戰略點。" },
+            { id: "p21_19", name: "虎尾驛", lat: 23.7041765, lng: 120.4363629, group: "2021停車點", tactical_group: "第三晚核心停車點", day: "day3_core_2021", color: "black", isRef:false, is2021:true, parking: "低", night_wait:"否", type: "核心接駕點", note: "開車族請停於虎尾農工或周邊。" },
+            { id: "p21_20", name: "全聯土庫中華店", lat: 23.6720272, lng: 120.3887702, group: "2021停車點", tactical_group: "第三晚核心停車點", day: "day3_core_2021", color: "black", isRef:false, is2021:true, parking: "中", night_wait:"是", type: "觀察點", note: "土庫圓環外補給點。" },
+            { id: "p21_21", name: "元長鄉停一停車場", lat: 23.651147, lng: 120.3133899, group: "2021停車點", tactical_group: "第三晚核心停車點", day: "day3_core_2021", color: "black", isRef:false, is2021:true, parking: "高", night_wait:"是", type: "停車點", note: "進北港前最後大型腹地。" }
         ];
 
+        // 繪製 2026 建議觀察軌跡帶 (虛線)
         const routeCoords = [ [24.3486, 120.6224], [24.2678, 120.5746], [23.9592, 120.5739], [23.7082, 120.4433], [23.7153, 120.3138], [23.5681, 120.3019] ];
         L.polyline(routeCoords, { color: '#666', weight: 3, dashArray: '5, 5', opacity: 0.5 }).addTo(routeLineLayer);
 
-        function toggleRoute() { document.getElementById('toggle-route').checked ? map.addLayer(routeLineLayer) : map.removeLayer(routeLineLayer); }
+        function toggleRoute() { 
+            const chk = document.getElementById('toggle-route');
+            if (chk) chk.checked ? map.addLayer(routeLineLayer) : map.removeLayer(routeLineLayer); 
+        }
 
+        // 生成數字圖示
         function getNumberMarkerIcon(tactical_group) {
             let num = 0, color = "#000";
             if (tactical_group.includes("第一晚")) { num = 1; color = "#436978"; }
@@ -167,20 +234,69 @@
             });
         }
 
+
+	// ⬇️ 請新增這個函式：生成星號圖示 ⬇️
+        function getStarMarkerIcon(colorName) {
+            // 轉換對應的色碼
+            const colorMap = { 'blue': '#2A81CB', 'orange': '#CB8427', 'red': '#CB2B3E', 'green': '#2AAD27' };
+            const hexColor = colorMap[colorName] || '#222';
+
+            return L.divIcon({
+                className: 'star-icon',
+                html: `<div class="star-icon" style="background-color: ${hexColor}; width:26px; height:26px;">★</div>`,
+                iconSize: [26, 26],
+                iconAnchor: [13, 13],
+                popupAnchor: [0, -10]
+            });
+        }
+
+        // 繪製交流道動態連線與生成獨立的交流道 marker
         function drawConnections(loc) {
             connLineLayer.clearLayers();
             if (loc.group === "2026候選區") {
-                // 畫紅線 - 國1
-                L.polyline([[loc.lat, loc.lng], [loc.nearest_g1_lat, loc.nearest_g1_lng]], 
-                    {color: 'red', weight: 3, opacity: 0.7, dashArray: '4,4'}).addTo(connLineLayer);
-                L.marker([loc.nearest_g1_lat, loc.nearest_g1_lng], {icon: customIcon('red')})
-                    .bindPopup(`<b>${loc.nearest_g1_name}</b>`).addTo(connLineLayer);
+                // 國1 交流道 (紅線)
+                let g1Url = `https://www.google.com/maps/search/?api=1&query=${loc.nearest_g1_lat},${loc.nearest_g1_lng}`;
+                L.polyline([[loc.lat, loc.lng], [loc.nearest_g1_lat, loc.nearest_g1_lng]], {color: 'red', weight: 3, opacity: 0.8, dashArray: '4,6'}).addTo(connLineLayer);
+                let ic1Marker = L.marker([loc.nearest_g1_lat, loc.nearest_g1_lng], {icon: customIcon('red')}).bindPopup(`
+                    <div class="custom-popup">
+                        <h3 style="margin:0 0 5px 0;">${loc.nearest_g1_name}</h3>
+                        <div style="font-size:0.8rem; color:#666;">(國道1號 示意節點)</div>
+                        <a href="${g1Url}" target="_blank" class="gm-link-simple">go</a>
+                    </div>
+                `).addTo(connLineLayer);
 
-                // 畫橘線 - 國3
-                L.polyline([[loc.lat, loc.lng], [loc.nearest_g3_lat, loc.nearest_g3_lng]], 
-                    {color: 'orange', weight: 3, opacity: 0.7, dashArray: '4,4'}).addTo(connLineLayer);
-                L.marker([loc.nearest_g3_lat, loc.nearest_g3_lng], {icon: customIcon('orange')})
-                    .bindPopup(`<b>${loc.nearest_g3_name}</b>`).addTo(connLineLayer);
+                // 國3 交流道 (橘線)
+                let g3Url = `https://www.google.com/maps/search/?api=1&query=${loc.nearest_g3_lat},${loc.nearest_g3_lng}`;
+                L.polyline([[loc.lat, loc.lng], [loc.nearest_g3_lat, loc.nearest_g3_lng]], {color: 'orange', weight: 3, opacity: 0.8, dashArray: '4,6'}).addTo(connLineLayer);
+                let ic3Marker = L.marker([loc.nearest_g3_lat, loc.nearest_g3_lng], {icon: customIcon('orange')}).bindPopup(`
+                    <div class="custom-popup">
+                        <h3 style="margin:0 0 5px 0;">${loc.nearest_g3_name}</h3>
+                        <div style="font-size:0.8rem; color:#666;">(國道3號 示意節點)</div>
+                        <a href="${g3Url}" target="_blank" class="gm-link-simple">go</a>
+                    </div>
+                `).addTo(connLineLayer);
+            }
+        }
+
+        function focusMap(id) {
+            const loc = locations.find(l => l.id === id);
+            const marker = markerInstances[id];
+            
+            if (marker && loc) {
+                if (loc.group === "2026候選區") {
+                    drawConnections(loc);
+                    let bounds = L.latLngBounds([
+                        [loc.lat, loc.lng],
+                        [loc.nearest_g1_lat, loc.nearest_g1_lng],
+                        [loc.nearest_g3_lat, loc.nearest_g3_lng]
+                    ]);
+                    map.fitBounds(bounds, { paddingTopLeft: [0, 200], paddingBottomRight: [30, 30], maxZoom: 13, animate: true });
+                } else {
+                    connLineLayer.clearLayers();
+                    map.setView([loc.lat, loc.lng], 14, { animate: true });
+                    map.panBy([0, -100]); 
+                }
+                setTimeout(() => { marker.openPopup(); }, 300);
             }
         }
 
@@ -193,6 +309,7 @@
 
             locations.forEach(loc => {
                 let match = false;
+                
                 if (fVal === 'all') match = true;
                 else if (fVal === '2026_only' && loc.group === '2026候選區') match = true;
                 else if (fVal === 'ref_only' && loc.isRef) match = true;
@@ -201,35 +318,41 @@
                 else if (fVal === 'day2_2026' && loc.tactical_group === '第二晚候選') match = true;
                 else if (fVal === 'day3_2026' && loc.tactical_group === '第三晚候選') match = true;
                 else if (fVal === 'target' && loc.day === 'target') match = true;
+                else if (fVal === 'day1_2021' && loc.tactical_group === '第一晚停車點') match = true;
+                else if (fVal === 'day2_2021' && loc.tactical_group === '第二晚停車點') match = true;
+                else if (fVal === 'day3_pre_2021' && loc.tactical_group === '第三晚前導停車點') match = true;
+                else if (fVal === 'day3_core_2021' && loc.tactical_group === '第三晚核心停車點') match = true;
+                else if (fVal === 'func_parking_high' && loc.parking === '高') match = true;
+                else if (fVal === 'func_night_yes' && loc.night_wait === '是') match = true;
+                else if (fVal === 'func_watch' && loc.type.includes('觀察')) match = true;
+                else if (fVal === 'func_candidate' && (loc.type.includes('駐駕') || loc.type.includes('核心'))) match = true;
                 
                 if (match) {
                     let icon;
                     if (loc.is2021) {
                         icon = getNumberMarkerIcon(loc.tactical_group);
                     } else if (loc.isRef) {
-                        icon = customIcon(loc.color);
-                    } else if (loc.group === '2026候選區') {
-                        icon = customIcon(loc.color);
+                        icon = getStarMarkerIcon(loc.color); // 歷年參考點用星號
                     } else {
                         icon = customIcon(loc.color);
                     }
-
                     const marker = L.marker([loc.lat, loc.lng], {icon: icon}).bindPopup(generatePopupContent(loc));
 
-                    // 點擊事件：畫連線、平移視圖防止擋住線條
-                    marker.on('click', () => {
-                        drawConnections(loc);
-                        map.panBy([0, -150]); 
-                    });
+                    marker.on('click', () => { focusMap(loc.id); });
 
                     markersLayer.addLayer(marker);
                     markerInstances[loc.id] = marker;
 
-                    let iconStr = loc.isRef ? "⭐" : (loc.is2021 ? "🅿️" : (loc.day === 'target' ? "🎯" : "📍"));
+                    let iconStr = loc.isRef ? "★" : (loc.is2021 ? "🅿️" : (loc.day === 'target' ? "🎯" : "📍"));
                     let li = document.createElement('li');
                     li.className = 'list-item';
-                    li.onclick = () => { focusMap(loc.id); drawConnections(loc); };
-                    li.innerHTML = `<div class="list-item-title">${iconStr} ${loc.name}</div><div class="list-item-desc">${loc.tactical_group}</div>`;
+                    li.onclick = () => { focusMap(loc.id); };
+                    
+                    li.innerHTML = `
+                        <div class="list-item-title">${iconStr} ${loc.name}</div>
+                        <div class="list-item-desc" style="color:#d92727; font-weight:bold;">[${loc.tactical_group}]</div>
+                        <div class="list-item-desc">🅿️停車便利:${loc.parking} | 屬性:${loc.type}</div>
+                    `;
                     listContainer.appendChild(li);
                 }
             });
@@ -245,20 +368,24 @@
                     <div class="popup-year">${yearTag}</div>
                     <h3 class="popup-title">${loc.name}</h3>
                     <div class="badges-container">
-                        <span class="badge ${parkingBadge}">🅿️ 停車${loc.parking}</span>
+                        <span class="badge ${parkingBadge}">🅿️ 停車便利：${loc.parking}</span>
+                        ${loc.night_wait === "是" ? `<span class="badge night-yes">🌙 夜宿可</span>` : ''}
                     </div>
             `;
+            
             if (loc.group === "2026候選區") {
                 html += `
                     <div class="highway-info">
+                        <span style="display:block; margin-bottom:3px;">※ 以下距離為規劃示意值</span>
                         <b>國1：</b>${loc.nearest_g1_name} (${loc.nearest_g1_distance})<br>
                         <b>國3：</b>${loc.nearest_g3_name} (${loc.nearest_g3_distance})
                     </div>
                 `;
             }
+            
             html += `
                 <div class="note">${loc.note}</div>
-                <a href="${gMapUrl}" target="_blank" class="gm-link">查看 Google Maps</a>
+                <a href="${gMapUrl}" target="_blank" class="gm-link-simple">go</a>
                 </div>
             `;
             return html;
